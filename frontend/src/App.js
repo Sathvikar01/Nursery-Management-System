@@ -12,6 +12,7 @@ import QuotationManagement from './components/QuotationManagement';
 import CustomerManagement from './components/CustomerManagement';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import AIChatbot from './components/AIChatbot';
 import { Toaster } from './components/ui/toaster';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
