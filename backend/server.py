@@ -395,8 +395,17 @@ async def get_dashboard_analytics(current_user: User = Depends(get_current_user)
         "recent_bills": [Bill(**bill) for bill in recent_bills]
     }
 
-# Initialize admin user
-@api_router.post("/init-admin")
+# Chat History Models
+class ChatMessage(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    session_id: str
+    user_message: str
+    ai_response: str
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ChatMessageCreate(BaseModel):
+    session_id: str
+    user_message: str
 async def initialize_admin():
     admin_exists = await db.users.find_one({"role": "admin"})
     if admin_exists:
