@@ -406,6 +406,59 @@ class ChatMessage(BaseModel):
 class ChatMessageCreate(BaseModel):
     session_id: str
     user_message: str
+
+# Chatbot Routes
+@api_router.post("/chat", response_model=ChatMessage)
+async def chat_with_ai(chat_data: ChatMessageCreate, current_user: User = Depends(get_current_user)):
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        
+        # Get Gemini API key from environment
+        gemini_api_key = os.environ.get('GEMINI_API_KEY')
+        if not gemini_api_key:
+            raise HTTPException(status_code=500, detail="Gemini API key not configured")
+        
+        # Initialize Gemini chat
+        chat = LlmChat(
+            api_key=gemini_api_key,
+            session_id=chat_data.session_id,
+            system_message="""You are an AI assistant for Shree Krishna Nursery Management System. 
+            You help with nursery operations, plant care advice, inventory management, billing questions, 
+            and general nursery business inquiries. Provide helpful, accurate responses related to:
+            - Plant care and gardening advice
+            - Nursery business operations
+            - Inventory management tips
+            - Customer service guidance
+            - Billing and quotation assistance
+            Be friendly, professional, and knowledgeable about plants and nursery management."""
+        ).with_model("gemini", "gemini-2.0-flash")
+        
+        # Send message to Gemini
+        user_message = UserMessage(text=chat_data.user_message)
+        ai_response = await chat.send_message(user_message)
+        
+        # Save chat history to database
+        chat_message = ChatMessage(
+            session_id=chat_data.session_id,
+            user_message=chat_data.user_message,
+            ai_response=ai_response
+        )
+        
+        await db.chat_history.insert_one(chat_message.dict())
+        
+        return chat_message
+        
+    except Exception as e:
+        logger.error(f"Chat error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Chat service error: {str(e)}")
+
+@api_router.get("/chat/history/{session_id}")
+async def get_chat_history(session_id: str, current_user: User = Depends(get_current_user)):
+    chat_history = await db.chat_history.find({"session_id": session_id}).sort("timestamp", 1).to_list(100)
+    return [ChatMessage(**chat) for chat in chat_history]
+
+# Initialize admin user
+@api_router.post("/init-admin")
 async def initialize_admin():
     admin_exists = await db.users.find_one({"role": "admin"})
     if admin_exists:
