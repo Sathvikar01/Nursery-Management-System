@@ -541,6 +541,8 @@ body {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  position: relative;
+  z-index: 101;
 }
 
 .modal-header {
