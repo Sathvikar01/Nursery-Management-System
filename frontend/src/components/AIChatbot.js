@@ -217,7 +217,7 @@ const AIChatbot = () => {
                     value={currentMessage}
                     onChange={(e) => setCurrentMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Ask about plants, inventory, or nursery operations..."
+                    placeholder="Ask about plant care, identification, inventory, sales, or app features..."
                     className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
                     rows="2"
                     disabled={loading}

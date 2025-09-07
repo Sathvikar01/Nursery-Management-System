@@ -499,6 +499,18 @@ const QuotationManagement = () => {
                   type="submit"
                   className="btn btn-primary"
                   disabled={formData.items.length === 0}
+                  onClick={(e) => {
+                    if (formData.items.length === 0) {
+                      e.preventDefault();
+                      alert('Please add at least one item to the quotation');
+                      return;
+                    }
+                    if (formData.valid_days < 1) {
+                      e.preventDefault();
+                      alert('Quotation validity must be at least 1 day');
+                      return;
+                    }
+                  }}
                 >
                   Create Quotation
                 </button>

@@ -528,6 +528,13 @@ const BillManagement = () => {
                   type="submit"
                   className="btn btn-primary"
                   disabled={formData.items.length === 0}
+                  onClick={(e) => {
+                    if (formData.items.length === 0) {
+                      e.preventDefault();
+                      alert('Please add at least one item to the bill');
+                      return;
+                    }
+                  }}
                 >
                   Create Bill
                 </button>

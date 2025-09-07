@@ -75,8 +75,17 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="hidden md:block">
-            <div className="bg-white bg-opacity-20 rounded-full p-4">
-              <Package className="w-8 h-8" />
+            <div className="bg-white bg-opacity-20 rounded-full p-4 flex items-center justify-center">
+              <img 
+                src="/image.png" 
+                alt="Shree Krishna Nursery Logo" 
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'block';
+                }}
+              />
+              <Package className="w-8 h-8 hidden" />
             </div>
           </div>
         </div>

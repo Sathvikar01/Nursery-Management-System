@@ -423,14 +423,43 @@ async def chat_with_ai(chat_data: ChatMessageCreate, current_user: User = Depend
             api_key=gemini_api_key,
             session_id=chat_data.session_id,
             system_message="""You are an AI assistant for Shree Krishna Nursery Management System. 
-            You help with nursery operations, plant care advice, inventory management, billing questions, 
-            and general nursery business inquiries. Provide helpful, accurate responses related to:
-            - Plant care and gardening advice
-            - Nursery business operations
-            - Inventory management tips
-            - Customer service guidance
-            - Billing and quotation assistance
-            Be friendly, professional, and knowledgeable about plants and nursery management."""
+            You are Krishna AI, an expert plant care specialist and nursery management assistant for Shree Krishna Nursery. 
+            You have extensive knowledge about:
+            
+            PLANT EXPERTISE:
+            - Plant identification, care, and cultivation techniques
+            - Seasonal planting guides and maintenance schedules
+            - Disease diagnosis and treatment recommendations
+            - Soil requirements, fertilization, and watering schedules
+            - Pest control and organic gardening methods
+            - Indoor and outdoor plant varieties
+            - Propagation techniques and plant breeding
+            
+            NURSERY OPERATIONS:
+            - Inventory management and stock optimization
+            - Sales analytics and revenue tracking
+            - Customer relationship management
+            - Billing, quotations, and payment processing
+            - Supplier management and procurement
+            - Seasonal business planning
+            
+            APP FUNCTIONALITY:
+            - Guide users through app features and navigation
+            - Help with plant database searches and filtering
+            - Assist with creating bills and quotations
+            - Explain inventory management tools
+            - Support customer management features
+            
+            REAL-TIME DATA ACCESS:
+            You can access current app data to provide accurate, up-to-date information about:
+            - Current inventory levels and plant availability
+            - Recent sales performance and trends
+            - Customer purchase history and preferences
+            - Low stock alerts and reorder recommendations
+            - Financial summaries and business metrics
+            
+            Always provide practical, actionable advice. Be friendly, professional, and demonstrate deep 
+            plant knowledge while helping users maximize their nursery management efficiency."""
         ).with_model("gemini", "gemini-2.0-flash")
         
         # Send message to Gemini
@@ -456,6 +485,63 @@ async def chat_with_ai(chat_data: ChatMessageCreate, current_user: User = Depend
 async def get_chat_history(session_id: str, current_user: User = Depends(get_current_user)):
     chat_history = await db.chat_history.find({"session_id": session_id}).sort("timestamp", 1).to_list(100)
     return [ChatMessage(**chat) for chat in chat_history]
+
+# Real-time data context for AI
+async def get_app_context_for_ai():
+    """Get current app data to provide context for AI responses"""
+    try:
+        # Get current inventory summary
+        total_plants = await db.plants.count_documents({})
+        low_stock_plants = await db.plants.count_documents({"$expr": {"$lte": ["$current_stock", "$min_stock_threshold"]}})
+        
+        # Get recent sales data
+        recent_sales_pipeline = [
+            {"$match": {"status": {"$ne": "pending"}, "created_at": {"$gte": datetime.now(timezone.utc) - timedelta(days=30)}}},
+            {"$group": {"_id": None, "total": {"$sum": "$total_amount"}, "count": {"$sum": 1}}}
+        ]
+        recent_sales = await db.bills.aggregate(recent_sales_pipeline).to_list(1)
+        monthly_sales = recent_sales[0] if recent_sales else {"total": 0, "count": 0}
+        
+        # Get customer count
+        total_customers = await db.customers.count_documents({})
+        
+        # Get top selling plants (based on bill items)
+        top_plants_pipeline = [
+            {"$unwind": "$items"},
+            {"$group": {"_id": "$items.plant_name", "quantity_sold": {"$sum": "$items.quantity"}}},
+            {"$sort": {"quantity_sold": -1}},
+            {"$limit": 5}
+        ]
+        top_plants = await db.bills.aggregate(top_plants_pipeline).to_list(5)
+        
+        # Get recent customer activity
+        recent_customers = await db.customers.find().sort("created_at", -1).limit(5).to_list(5)
+        
+        context = f"""
+        INVENTORY STATUS:
+        - Total plants in inventory: {total_plants}
+        - Plants with low stock: {low_stock_plants}
+        
+        SALES PERFORMANCE (Last 30 days):
+        - Total sales: ₹{monthly_sales['total']:,.2f}
+        - Number of transactions: {monthly_sales['count']}
+        - Average transaction: ₹{monthly_sales['total']/max(monthly_sales['count'], 1):,.2f}
+        
+        CUSTOMER BASE:
+        - Total registered customers: {total_customers}
+        - Recent customers: {[c['name'] for c in recent_customers]}
+        
+        TOP SELLING PLANTS:
+        {[f"- {plant['_id']}: {plant['quantity_sold']} units sold" for plant in top_plants]}
+        
+        Use this real-time data to provide accurate, current information in your responses.
+        """
+        
+        return context
+        
+    except Exception as e:
+        logger.error(f"Error getting app context: {str(e)}")
+        return "Real-time data temporarily unavailable."
 
 # Initialize admin user
 @api_router.post("/init-admin")

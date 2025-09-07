@@ -306,6 +306,24 @@ const CustomerManagement = () => {
                 <button
                   type="submit"
                   className="btn btn-primary"
+                  onClick={(e) => {
+                    // Validate phone number format
+                    const phoneRegex = /^[0-9]{10}$/;
+                    if (!phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
+                      e.preventDefault();
+                      alert('Please enter a valid 10-digit phone number');
+                      return;
+                    }
+                    // Validate email format if provided
+                    if (formData.email) {
+                      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                      if (!emailRegex.test(formData.email)) {
+                        e.preventDefault();
+                        alert('Please enter a valid email address');
+                        return;
+                      }
+                    }
+                  }}
                 >
                   {editingCustomer ? 'Update Customer' : 'Add Customer'}
                 </button>

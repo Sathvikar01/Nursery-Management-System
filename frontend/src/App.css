@@ -361,6 +361,49 @@ body {
     padding: 0.75rem;
     font-size: 0.8125rem;
   }
+  
+  /* Mobile button improvements */
+  .btn {
+    min-height: 48px; /* Larger touch targets on mobile */
+    padding: 0.75rem 1rem;
+  }
+  
+  .btn-sm {
+    min-height: 40px;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  /* Improve modal button spacing on mobile */
+  .modal-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .modal-footer .btn {
+    width: 100%;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn {
+    border: 2px solid currentColor;
+  }
+  
+  .btn-primary {
+    border-color: white;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+  
+  .btn:hover {
+    transform: none;
+  }
 }
 
 /* Alert styles */

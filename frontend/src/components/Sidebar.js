@@ -68,8 +68,19 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Desktop brand */}
         <div className="sidebar-brand hidden lg:block">
           <div className="flex items-center">
-            <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-lg mr-3">
-              <Leaf className="w-6 h-6 text-emerald-600" />
+            <div className="flex items-center justify-center w-10 h-10 mr-3">
+              <img 
+                src="/image.png" 
+                alt="Shree Krishna Nursery Logo" 
+                className="w-10 h-10 object-contain rounded-lg"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="hidden items-center justify-center w-10 h-10 bg-emerald-100 rounded-lg">
+                <Leaf className="w-6 h-6 text-emerald-600" />
+              </div>
             </div>
             <div>
               <h2 className="sidebar-title">Shree Krishna</h2>

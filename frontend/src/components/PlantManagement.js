@@ -416,6 +416,19 @@ const PlantManagement = () => {
                 <button
                   type="submit"
                   className="btn btn-primary"
+                  onClick={(e) => {
+                    // Validate required fields
+                    if (!formData.name || !formData.category || !formData.location) {
+                      e.preventDefault();
+                      alert('Please fill in all required fields (Name, Category, Location)');
+                      return;
+                    }
+                    if (formData.selling_price <= formData.cost_price) {
+                      e.preventDefault();
+                      alert('Selling price should be higher than cost price');
+                      return;
+                    }
+                  }}
                 >
                   {editingPlant ? 'Update Plant' : 'Add Plant'}
                 </button>

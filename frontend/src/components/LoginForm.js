@@ -28,8 +28,19 @@ const LoginForm = () => {
       <div className="login-card">
         <div className="login-header">
           <div className="flex items-center justify-center mb-4">
-            <div className="flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full">
-              <Leaf className="w-8 h-8 text-emerald-600" />
+            <div className="flex items-center justify-center w-16 h-16 rounded-full overflow-hidden">
+              <img 
+                src="/image.png" 
+                alt="Shree Krishna Nursery Logo" 
+                className="w-16 h-16 object-contain"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="hidden items-center justify-center w-16 h-16 bg-emerald-100 rounded-full">
+                <Leaf className="w-8 h-8 text-emerald-600" />
+              </div>
             </div>
           </div>
           <h1 className="login-title">Shree Krishna Nursery</h1>
