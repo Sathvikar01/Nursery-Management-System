@@ -430,6 +430,7 @@ const QuotationManagement = () => {
                           <div className="flex-1">
                             <span className="font-medium">{item.plant_name}</span>
                             {item.variant && <span className="text-gray-600 ml-2">({item.variant})</span>}
+                            }
                             <div className="text-sm text-gray-600">
                               {item.quantity} × {formatCurrency(item.unit_price)} = {formatCurrency(item.total_price)}
                             </div>
